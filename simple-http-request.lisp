@@ -2,7 +2,7 @@
 
 (in-package :cl-web-utils)
 
-(defmacro simple-http-request (url args &key additional-headers (convert-dash t)
+(defmacro simple-http-request (url args &key all-args-p additional-headers (convert-dash t)
                                want-stream authorization camel-caps cookie-jar method)
   (flet ((down (el)
 	   (awhen (string-downcase el)
@@ -11,15 +11,21 @@
 	       (convert-dash (substitute #\_ #\- it))
 	       (t it)))))
     (let ((remote-args
-	   (loop with after-key
-		 for arg in args
-		 if (eq arg '&key) do (setf after-key t)
-		   else if (not after-key)
-			  collect (cons arg nil)
-		 else if (consp arg) collect
-		   (cons (car arg)
-			 (format nil "&~a=~~a" (down (car arg))))
-		 else collect (cons arg (format nil "~~@[&~a=~~a~~]" (down arg))))))
+           (if all-args-p
+               (loop for arg in args
+                     unless (eq arg '&key)
+                       collect (if (consp arg)
+                                   (cons (car arg) (format nil "&~a=~~a" (down (car arg))))
+                                   (cons arg (format nil "~~@[&~a=~~a~~]" (down arg)))))
+               (loop with after-key
+                     for arg in args
+                     if (eq arg '&key) do (setf after-key t)
+                       else if (not after-key)
+                              collect (cons arg nil)
+                     else if (consp arg) collect
+                       (cons (car arg)
+                             (format nil "&~a=~~a" (down (car arg))))
+                     else collect (cons arg (format nil "~~@[&~a=~~a~~]" (down arg)))))))
       `(destructuring-bind (rtn &optional code &rest rest)
            (multiple-value-list
                (http-request
@@ -73,7 +79,7 @@
                           :cookie-jar ,cookie-jar)))
 
 (defmacro define-json-request (name args url &key (convert-dash t)
-                               trim-callback method)
+                               trim-callback method all-args-p)
   `(defun ,name ,(loop for arg in args
                        if (http-arg-no-encode arg)
                          collect (http-arg-no-encode-base arg)
@@ -81,7 +87,7 @@
      (destructuring-bind (rtn code &rest rest)
          (multiple-value-list
              (simple-http-request
-              ,url ,args
+              ,url ,args :all-args-p ,all-args-p
               :additional-headers (list (cons "Accept" "application/json"))
               :convert-dash ,convert-dash
               :method ,method))
