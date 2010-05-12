@@ -104,7 +104,7 @@
 (defmacro define-xml-request (name args url &key additional-headers
                               (convert-dash t) fields (item-name "item")
                               authorization raw camel-caps cookie-jar
-                              remove-whitespace)
+                              remove-whitespace all-args-p)
   (let ((request-args (if authorization
                         (remove-if (lambda (el) (member
                                                  (if (consp el) (car el) el)
@@ -117,7 +117,7 @@
 			 else collect arg)
        (let ((stream
 	      (simple-http-request
-               ,url ,request-args
+               ,url ,request-args :all-args-p ,all-args-p
                :additional-headers ',(append
                                       (list (cons "Accept" "application/xml"))
                                       additional-headers)
