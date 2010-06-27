@@ -3,12 +3,6 @@
 
 (in-package :cl-web-utils)
 
-(export '(nand nor with-new-thread str-join concat safe-read-from-string
-	  last1 simple-run mkstr symb ksymb parse-float tail file-info file-mime
-	  remove-keyword remove-keywords random-nth time-difference md5 helpers
-	  readable-character-code-p byte-array-to-ascii-string to-json from-json
-	  eval-always string-starts-with awhen aif))
-
 (defmacro nor (&rest forms)
   `(not (or ,@forms)))
 
@@ -148,7 +142,6 @@
 
 (defun string-starts-with (string prefix &key test)
   "Returns true if `string` starts with `prefix`.
-
 Use the keyword argument `test` (which defaults to `char=`) to check
 each character."
   (setf test (or (and test (ensure-function test)) #'char=))

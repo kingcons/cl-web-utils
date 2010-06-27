@@ -6,7 +6,7 @@ The goal is to eliminate as much repitition from binding to web APIs as possible
 through judicious use of macros and a variety of other lisp niceties.
 We borrow heavily from existing and established lisp code where possible ranging
 from drakma, cxml and cl-json to bits of anaphora, metatilities and even
-a few symbol building macros from On Lisp.
+a few symbol building functions from On Lisp.
 
 It's a pretty straightforward library with a chief emphasis on the functions
 define-json-request and define-xml-request and a smattering of other helpers.
